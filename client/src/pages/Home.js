@@ -3,25 +3,32 @@ import { Datatable, Footer, Header } from '../components'
 import axios from 'axios'
 import Form from '../components/Form'
 import { Button } from 'react-bootstrap'
-import { Navigate } from 'react-router-dom'
 
 export default function Home() {
     const [guest, setGuest] = useState({})
     const [show, setShow] = useState(false);
 
+    // FUnction to ger all guest entries from the server
+    const getAllGuest = async () => {
+        try {
+          console.log('Fetching guest data...');
+          const res = await axios.get('http://localhost:8800/guest');
+          console.log('Response:', res.data);
+          setGuest(res.data);
+        } catch (error) {
+          console.log('Error fetching guest data:', error);
+        }
+      };
+
+    useEffect(() => {
+        getAllGuest()
+    }, [])
+
+    // Handle State to set form is show or not
     const handleClose = () => setShow(false);
     const handleShow = () => setShow(true);
 
-    const getAllGuest = async () => {
-        try {
-            const res = await axios.get('http://localhost:8800/guest')
-            console.log(res);
-            setGuest(res.data)
-        } catch (error) {
-            console.log(error);
-        }
-    }
-
+    // Function to store guest data to server 
     const handleSubmit = async (guestData) => {
         try {
             const res = await axios.post("http://localhost:8800/guest", guestData)
@@ -34,20 +41,20 @@ export default function Home() {
         handleClose();
     }
 
+    // Logout function
     const handleLogout = async () => {
         // Clear the user authentication data from localStorage
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-
-        const res = await axios.post('http://localhost:8800/logout')
-        console.log(res);
-        // Redirect the user to the login page after logout
-        return <Navigate to="/login" replace state={{ message: 'You have been logged out.' }} />;
-    };
-
-    useEffect(() => {
-        getAllGuest()
-    }, [])
+      
+        try {
+          const res = await axios.post('http://localhost:8800/logout');
+          console.log(res);
+        } catch (error) {
+          console.error('Error logging out:', error);
+          // Handle any error that occurred during logout
+        }
+    }
 
     return (
         <div>
@@ -63,6 +70,7 @@ export default function Home() {
                     </div>
                 </div>
                 <hr />
+                {/* Datatable component and sending guest entries */}
                 <Datatable guest={guest} />
             </div>
             <Footer />

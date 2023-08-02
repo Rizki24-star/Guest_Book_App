@@ -33,7 +33,7 @@ export default function Register() {
 
         } catch (err) {
             console.log(err)
-            setErrorMessage(err.response.data.message)
+            setErrorMessage(err.response?.data?.message)
         }
 
     }

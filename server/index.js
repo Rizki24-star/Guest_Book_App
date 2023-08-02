@@ -1,4 +1,4 @@
-import express, { json } from "express";
+import express from "express";
 import mysql from "mysql";
 import cors from "cors";
 import bcrypt from "bcrypt";
@@ -47,26 +47,30 @@ app.post("/guest", (req, res) => {
 })
 
 app.post("/register", async (req, res) => {
+  try {
     const q = "INSERT INTO users (`name`, `email`, `password`) VALUES (?)";
-    const hashedPassword = await bcrypt.hash(req.body.password, 10);
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(req.body.password, saltRounds);
     const values = [
-        req.body.name,
-        req.body.email,
-        hashedPassword
+      req.body.name,
+      req.body.email,
+      hashedPassword
     ];
 
     db.query(q, [values], (err, data) => {
-        if (err) return res.status(401).json({ status: false, message: "Something went wrong or email has been taken!" })
-        return res.json({ status: true, message: "Register is successfully" })
-    })
-})
-
+      if (err) return res.status(401).json({ status: false, message: "Something went wrong or email has been taken!" })
+      return res.json({ status: true, message: "Register is successful" })
+    });
+  } catch (error) {
+    console.error("Error registering user:", error);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+});
 
 app.post("/login", async (req, res) => {
     const { email, password } = req.body;
     // return res.json({result: [email]})
     try {
-      // Execute the SQL query to find the user by email
       const query = "SELECT * FROM users WHERE email = ?";
       const values = [email];
   
@@ -85,18 +89,14 @@ app.post("/login", async (req, res) => {
       if (rows.length === 0) {
         return res.status(401).json({ error: "Invalid email or password" });
       }
-      
-
 
       const user = rows;
-
-      const isPasswordValid = bcrypt.compare([password], user.password)
+  
+      const isPasswordValid = await bcrypt.compare(password, user.password);
 
       if (!isPasswordValid) {
         return res.status(401).json({ error: "Invalid password" });
       }
-  
-
 
       const token = jwt.sign({ userId: user.email }, JWT_SECRET_KEY, {
         expiresIn: "1h",
@@ -108,7 +108,6 @@ app.post("/login", async (req, res) => {
             email: user.email,
         }, token
       });
-
     } catch (error) {
       console.error("Error fetching user:", error);
       return res.status(500).json({ error: "Internal Server Error" });
@@ -117,19 +116,9 @@ app.post("/login", async (req, res) => {
 
   app.post("/logout", (req, res) => {
     try {
-      // Clear the user authentication data from the client-side (localStorage or cookies)
-      // Remove the token and user data from localStorage
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
-  
-      // You can also clear cookies if you are using them for authentication
-  
-      // Respond with a success message indicating successful logout
       return res.json({ message: "Logout successful" });
     } catch (error) {
       console.error("Error logging out:", error);
-      // Handle any error that occurred during logout
-      // For example, show an error message to the user
       return res.status(500).json({ error: "Internal Server Error" });
     }
   });

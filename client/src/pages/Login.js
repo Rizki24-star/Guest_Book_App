@@ -26,6 +26,7 @@ export default function Login() {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(auth));
         navigate('/'); 
+        window.location.reload();
     };
 
     const handleSubmit = async (e) => {
@@ -38,7 +39,11 @@ export default function Login() {
 
         } catch (err) {
             console.log(err)
-            setErrorMessage("Something went wrong!")
+            // if (err.response.status === 500) {
+                setErrorMessage(err.response?.data?.error || err.message)
+            // }else{
+                // setErrorMessage(err.message)
+            // }
         }
 
     }
@@ -76,7 +81,7 @@ export default function Login() {
                                 <input type="email" className='form-control' name='email' onChange={handleChange} placeholder='Email..' required />
                             </div>
                             <div className='py-2'>
-                                <input type="password" className='form-control' name='password' onChange={handleChange} placeholder='Password..' required />
+                                <input type="password" className='form-control' name='password' onChange={handleChange} placeholder='Password..' autoComplete="off" required />
                             </div>
                             <div className='py-3'>
                                 <button type='submit' className='btn btn-success fw-semibold w-100'>Sign in</button>

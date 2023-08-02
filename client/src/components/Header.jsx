@@ -12,7 +12,9 @@ function Header({logout}) {
         <Navbar.Collapse className="justify-content-end">
           <NavDropdown title={auth?.name || '' } id="basic-nav-dropdown">
             <NavDropdown.Item href="#action/3.1">
-              <button onClick={logout} className='btn btn-sm text-danger fw-semibold'>Sign Out</button>
+            <form onSubmit={logout}>
+              <button className='btn btn-sm text-danger fw-semibold'>Sign Out</button>
+            </form>
             </NavDropdown.Item> 
           </NavDropdown>
         </Navbar.Collapse>
