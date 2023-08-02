@@ -21,6 +21,7 @@ export default function Register() {
         console.log(user)
     }
 
+    // function to send user data to server
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {

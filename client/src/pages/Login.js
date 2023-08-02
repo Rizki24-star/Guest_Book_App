@@ -22,13 +22,15 @@ export default function Login() {
         console.log(user)
     }
 
+    // Function to store token and user data to local storage
     const handleLogin = (token, auth) => {
         localStorage.setItem('token', token);
         localStorage.setItem('user', JSON.stringify(auth));
         navigate('/'); 
         window.location.reload();
     };
-
+    
+    // Function to request login to server 
     const handleSubmit = async (e) => {
         e.preventDefault()
         try {
